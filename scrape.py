@@ -1,11 +1,29 @@
 from bs4 import BeautifulSoup
 from datetime import datetime
+import subprocess
 import requests
+import platform
+import random
+import time
 import os
 import gc
 
 
-def fix_url(href):
+def sleep():
+    time.sleep(random.uniform(2.0, 5.0))
+
+
+def open_folder(path):
+    system = platform.system()
+    if system == "Windows":  # if system is windows
+        os.startfile(path)
+    elif system == "Darwin":  # if system is mac
+        subprocess.Popen(["open", path])
+    else:  # if system is linux
+        subprocess.Popen(["xdg-open", path])
+
+
+def fix_url(href):  # this project does not need this function, but it can be very useful.
     if not href:
         return None
     if href.startswith("https://") or href.startswith("http://"):
@@ -40,7 +58,7 @@ def write_file(fpath, filename, quote):
             try:
                 os.remove(file)
             except Exception as e:
-                print("Could not delete {file} -> {e}")
+                print(f"Could not delete {file} -> {e}")
 
 
 def find_quotes():
@@ -52,19 +70,18 @@ def find_quotes():
         for t in tag_list:
             tags += t.text + " "
         quo = quote.text + "\n-" + author.text + "\n" + tags.strip() + "\n\n"
-        author_path = fr"D:\scrapedData\{author.text}"
-        file_name = f"quotes_{time_now}"
-        file_name = f"{file_name}.txt"
+        author_path = os.path.join(folder_path, f"{author.text}")
+        file_name = f"quotes_{time_now}.txt"
         write_file(author_path, file_name, quo)
-
         tags = "tags: "
 
 
 # folder/file stuff
-folder_path = r"D:\scrapedData"
+home_dir = os.path.expanduser("~")
+folder_path = os.path.join(home_dir, "Scraped Data", "QuotesToScrape")
 os.makedirs(folder_path, exist_ok=True)
-os.startfile(folder_path)
-time_now = datetime.now().strftime("%y%m%d%H%M")
+open_folder(folder_path)
+time_now = datetime.now().strftime("%y%m%d%H%M%S")
 scr_website = requests.get("https://quotes.toscrape.com/")
 base_url = scr_website.url
 soup = BeautifulSoup(scr_website.text, "html.parser")
@@ -74,6 +91,7 @@ while True:
     if soup.find("li", class_="next"):
         quote_block = soup.find_all("div", class_="quote")
         find_quotes()
+        sleep()
         link = fix_url(soup.find("li", class_="next").find("a").get("href").strip())
         link = requests.get(link)
         soup = BeautifulSoup(link.text, "html.parser")
@@ -81,4 +99,5 @@ while True:
         quote_block = soup.find_all("div", class_="quote")
         find_quotes()
         gc.collect()
+        print("Done scraping!")
         break
