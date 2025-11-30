@@ -52,12 +52,12 @@ def write_file(fpath, filename, quote):
         if f.startswith("quotes_") and f.endswith(".txt")
     ]
     if len(files) > file_limit:
-        files_sorted = sorted(files, key=os.path.getctime)
-        old_file = files_sorted[:-file_limit]
-        for file in old_file:
+        files_sorted = sorted(files, key=os.path.getmtime)
+        old_files = files_sorted[:-file_limit]
+        for file in old_files:
             try:
                 os.remove(file)
-            except Exception as e:
+            except OSError as e:
                 print(f"Could not delete {file} -> {e}")
 
 
