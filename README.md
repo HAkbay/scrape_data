@@ -10,6 +10,7 @@ Required library:<br>
 Expected behavior:<br>
 • Create the folder \User\Scraped Data\QuotesToScrape -> This can be changed as you wish at line 80-81, also works cross platform!<br>
 • Open the folder that was just created<br>
+• Wait a random amount of time between 2 and 5 seconds before each request so we do not overload the server.<br>
 • Create a folder for each author<br>
 • Save all the quotes for the specified author under a file that starts with "quotes_" (the full file name is quotes_YYMMDDhhmmss)<br>
-• Wait a random amount of time between 2 and 5 seconds before each request so we do not overload the server.
+• If there is more than 5 files after writing the files, delete the oldest MODIFIED text file.
